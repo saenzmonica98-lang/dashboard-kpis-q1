@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard · Reclutamiento y Selección · Viajero</title>
+
+  <!-- Fuente fallback (Manrope) muy similar a Geomanist. Si tienes el archivo .otf/.woff2 de Geomanist, déjalo en /assets y descomenta el @font-face en styles.css -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap" rel="stylesheet" />
+
+  <!-- Librerías -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+/* =========================================================
+   STYLES · Dashboard Reclutamiento y Selección · Viajero
+   ---------------------------------------------------------
+   · Paleta corporativa cálida (hospitalidad LATAM)
+   · Fondo blanco para que el logo negro respire
+   · Tipografía Geomanist (fallback Manrope) + Fraunces (display)
+   ========================================================= */
+
+
+/* -------- @font-face GEOMANIST --------
+   Si tienes el archivo de Geomanist, déjalo en /assets/fonts
+   y descomenta este bloque. Por defecto usa Manrope (muy similar).
+----------------------------------------- */
+/*
+@font-face {
+  font-family: "Geomanist";
+  src: url("../assets/fonts/Geomanist-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geomanist";
+  src: url("../assets/fonts/Geomanist-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Geomanist";
+  src: url("../assets/fonts/Geomanist-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+*/
+
+/* ============== TOKENS ============== */
+:root {
+  /* Colores base */
+  --bg:           #FFFFFF;
+  --bg-soft:      #FAFAF7;
+  --bg-card:     #FFFFFF;
+  --bg-elevated: #FFFFFF;
+
+  /* Texto */
+  --ink:          #0A0A0A;
+  --ink-2:        #2C2C2C;
+  --ink-3:        #6B6B6B;
+  --ink-4:        #9A9A9A;
+
+  /* Bordes */
+  --line:         #ECEBE6;
+  --line-strong:  #DAD8D1;
+
+  /* Acento cálido hospitalidad */
+  --accent:       #B8946A;
+  --accent-soft:  #F5EDE0;
+  --accent-ink:   #6E4F2E;
+
+  /* Semáforos refinados */
+  --ok:        #15803D;
+  --ok-bg:     #ECFDF3;
+  --ok-line:   #BBE5C8;
+
+  --warn:      #B45309;
+  --warn-bg:   #FEF6E7;
+  --warn-line: #F2D9A0;
+
+  --danger:    #B91C1C;
+  --danger-bg: #FDECEC;
+  --danger-line:#F2BFBF;
+
+  /* Tipografía */
+  --font-sans:    "Geomanist", "Manrope", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: "Fraunces", "Geomanist", "Manrope", Georgia, serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Sombras refinadas */
+  --shadow-sm:  0 1px 2px rgba(15, 15, 15, 0.04);
+  --shadow:     0 1px 3px rgba(15, 15, 15, 0.06), 0 4px 16px rgba(15, 15, 15, 0.03);
+  --shadow-lg:  0 4px 24px rgba(15, 15, 15, 0.06), 0 12px 48px rgba(15, 15, 15, 0.04);
+
+  /* Radios */
+  --r-sm: 6px;
+  --r:    10px;
+  --r-lg: 16px;
+
+  /* Layout */
+  --sidebar-w: 248px;
+}
+
+/* ============== RESET ============== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; }
+table { border-collapse: collapse; width: 100%; }
+
+/* ============== SIDEBAR ============== */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--bg);
+  border-right: 1px solid var(--line);
+  padding: 28px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+}
+
+.sidebar__brand {
+  background: #FFFFFF;
+  padding: 12px 14px;
+  border-radius: var(--r);
+  margin-bottom: 32px;
+  border: 1px solid var(--line);
+}
+
+.sidebar__logo {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.sidebar__nav { flex: 1; overflow-y: auto; }
+.sidebar__nav::-webkit-scrollbar { width: 4px; }
+.sidebar__nav::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 2px; }
+
+.sidebar__label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-4);
+  margin: 22px 12px 8px;
+}
+.sidebar__label:first-of-type { margin-top: 0; }
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-3);
+  transition: all 0.15s ease;
+  position: relative;
+}
+.nav-link:hover { background: var(--bg-soft); color: var(--ink); }
+.nav-link.is-active { background: var(--ink); color: #FFFFFF; }
+.nav-link.is-active .nav-dot { background: #FFFFFF; }
+
+.nav-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--ink-4);
+  transition: background 0.15s ease;
+}
+
+.sidebar__footer {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 12px;
+}
+.footer-meta__label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-4);
+  font-weight: 600;
+}
+.footer-meta__value {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+/* ============== BUTTONS ============== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+}
+.btn--primary {
+  background: var(--ink);
+  color: #FFFFFF;
+}
+.btn--primary:hover { background: #1f1f1f; transform: translateY(-1px); }
+
+.btn--ghost {
+  background: var(--bg-soft);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+}
+.btn--ghost:hover { background: #F0EFEA; border-color: var(--line-strong); }
+
+.icon-sm { width: 14px; height: 14px; stroke-width: 2; }
+
+/* ============== MAIN ============== */
+.main {
+  margin-left: var(--sidebar-w);
+  padding: 32px 40px 48px;
+  max-width: 1500px;
+}
+
+/* ============== TOPBAR ============== */
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding-bottom: 28px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.topbar__breadcrumb {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-4);
+  margin-bottom: 8px;
+}
+.topbar__title {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.topbar__period {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+/* ============== SECTIONS ============== */
+.section { margin-bottom: 56px; }
+
+.section__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.section__eyebrow {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+.section__title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.section__sub {
+  font-size: 13px;
+  color: var(--ink-3);
+  max-width: 480px;
+}
+
+/* ============== INSIGHTS GRID ============== */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.insight-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 18px 20px 18px 22px;
+  transition: all 0.2s ease;
+}
+.insight-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 18px; bottom: 18px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+}
+.insight-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+
+.insight-card--fortaleza::before   { background: var(--ok); }
+.insight-card--alerta::before      { background: var(--danger); }
+.insight-card--oportunidad::before { background: var(--accent); }
+
+.insight-card__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+.insight-card--fortaleza .insight-card__tag   { color: var(--ok); }
+.insight-card--alerta .insight-card__tag      { color: var(--danger); }
+.insight-card--oportunidad .insight-card__tag { color: var(--accent-ink); }
+
+.insight-card__title {
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.insight-card__text {
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.55;
+}
+
+/* ============== KPI GRID ============== */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.kpi-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 22px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+.kpi-card:hover { box-shadow: var(--shadow); }
+
+.kpi-card__label {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.kpi-card__value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.kpi-card__value {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  line-height: 1;
+}
+.kpi-card__unit {
+  font-size: 13px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.kpi-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.kpi-card__delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.kpi-card__delta--up   { background: var(--danger-bg); color: var(--danger); }
+.kpi-card__delta--down { background: var(--ok-bg); color: var(--ok); }
+.kpi-card__delta--up-good   { background: var(--ok-bg); color: var(--ok); }
+.kpi-card__delta--down-bad  { background: var(--danger-bg); color: var(--danger); }
+
+.kpi-card__status-strip {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.kpi-card[data-status="ok"]     .kpi-card__status-strip { background: var(--ok); }
+.kpi-card[data-status="warn"]   .kpi-card__status-strip { background: var(--warn); }
+.kpi-card[data-status="danger"] .kpi-card__status-strip { background: var(--danger); }
+.kpi-card[data-status="neutral"] .kpi-card__status-strip { background: var(--ink-4); }
+
+/* ============== CARDS / GRID ============== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 24px;
+  transition: box-shadow 0.2s ease;
+}
+.card:hover { box-shadow: var(--shadow); }
+
+.card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.card__eyebrow {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-4);
+  margin-bottom: 4px;
+}
+.card__title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.card__metric {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.metric-big {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1;
+}
+.metric-unit {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.card__footer {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.card__insight {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.5;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* ============== CHART WRAP ============== */
+.chart-wrap { position: relative; height: 220px; width: 100%; }
+.chart-wrap--md { height: 280px; }
+
+/* ============== BADGES ============== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.badge--neutral { background: var(--bg-soft); color: var(--ink-3); border: 1px solid var(--line); }
+.badge--ok      { background: var(--ok-bg);     color: var(--ok); }
+.badge--warn    { background: var(--warn-bg);   color: var(--warn); }
+.badge--danger  { background: var(--danger-bg); color: var(--danger); }
+
+/* Pill semáforo con punto */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.status-dot--ok     { background: var(--ok); }
+.status-dot--warn   { background: var(--warn); }
+.status-dot--danger { background: var(--danger); }
+
+/* ============== TABLE ============== */
+.data-table {
+  margin-top: 16px;
+  font-size: 12.5px;
+}
+.data-table th, .data-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+.data-table th {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-4);
+}
+.data-table td { color: var(--ink-2); font-weight: 500; }
+.data-table tbody tr:last-child td { border-bottom: 0; }
+.data-table tbody tr:hover { background: var(--bg-soft); }
+.data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.data-table--full tbody tr:first-child td { padding-top: 14px; }
+
+/* ============== FILL RATE POR TIPO (barras horizontales) ============== */
+.fill-type-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 90px;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.fill-type-row:last-child { border-bottom: 0; }
+.fill-type-row__label { font-size: 13px; font-weight: 500; color: var(--ink); }
+.fill-type-row__bar {
+  height: 8px;
+  background: var(--bg-soft);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.fill-type-row__fill {
+  height: 100%;
+  border-radius: 999px;
+}
+.fill-type-row__fill--ok     { background: linear-gradient(90deg, #15803D, #4ADE80); }
+.fill-type-row__fill--warn   { background: linear-gradient(90deg, #B45309, #FBBF24); }
+.fill-type-row__fill--danger { background: linear-gradient(90deg, #B91C1C, #F87171); }
+.fill-type-row__value { font-size: 12.5px; font-weight: 600; color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ============== ANALYST GRID ============== */
+.analyst-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.analyst-card {
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+.analyst-card:hover { box-shadow: var(--shadow); }
+.analyst-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.analyst-card__avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+}
+.analyst-card__name {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.analyst-card__role {
+  font-size: 11.5px;
+  color: var(--ink-4);
+  margin-top: 1px;
+}
+.analyst-card__metric-row {
+  display: flex;
+  gap: 24px;
+  margin: 14px 0 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.analyst-metric { display: flex; flex-direction: column; gap: 2px; }
+.analyst-metric__label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-4); }
+.analyst-metric__value { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--ink); letter-spacing: -0.015em; }
+
+.analyst-card__nota {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+/* ============== FOOTER ============== */
+.footer {
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--ink-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer code { font-family: var(--font-mono); font-size: 11.5px; background: var(--bg-soft); padding: 2px 6px; border-radius: 4px; }
+
+/* ============== RESPONSIVE ============== */
+@media (max-width: 1100px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .main { padding: 28px 28px 40px; }
+}
+
+@media (max-width: 860px) {
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .sidebar__brand { margin-bottom: 0; max-width: 200px; }
+  .sidebar__nav, .sidebar__footer { display: none; }
+  .main { margin-left: 0; padding: 20px; }
+  .topbar__title { font-size: 24px; }
+  .kpi-card__value { font-size: 30px; }
+}
+
+/* ============== PRINT / PDF EXPORT ============== */
+@media print {
+  .sidebar, .topbar__actions { display: none; }
+  .main { margin-left: 0; padding: 0; max-width: 100%; }
+  .card, .insight-card, .kpi-card, .analyst-card { break-inside: avoid; box-shadow: none !important; }
+  body { background: #FFFFFF; }
+}
+
+/* ============== UTILS ============== */
+.tnum { font-variant-numeric: tabular-nums; }
+
+</style>
+</head>
+
+<body>
+
+  <!-- ============== SIDEBAR ============== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAKGBwoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AIyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//Z" alt="Viajero" class="sidebar__logo" />
+    </div>
+
+    <nav class="sidebar__nav">
+      <p class="sidebar__label">General</p>
+      <a href="#resumen"    class="nav-link is-active"><span class="nav-dot"></span>Resumen ejecutivo</a>
+      <a href="#kpis"       class="nav-link"><span class="nav-dot"></span>KPIs principales</a>
+
+      <p class="sidebar__label">Indicadores</p>
+      <a href="#time-hire"  class="nav-link"><span class="nav-dot"></span>Time to Hire</a>
+      <a href="#time-fill"  class="nav-link"><span class="nav-dot"></span>Time to Fill</a>
+      <a href="#fill-rate"  class="nav-link"><span class="nav-dot"></span>Fill Rate</a>
+      <a href="#rotacion"   class="nav-link"><span class="nav-dot"></span>Rotación 0–90 días</a>
+
+      <p class="sidebar__label">Equipo</p>
+      <a href="#analistas"  class="nav-link"><span class="nav-dot"></span>Por analista</a>
+      <a href="#sedes"      class="nav-link"><span class="nav-dot"></span>Ranking por sede</a>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="footer-meta">
+        <span class="footer-meta__label">Última actualización</span>
+        <span class="footer-meta__value" id="lastUpdate">—</span>
+      </div>
+      <button class="btn btn--ghost" id="btnExportPdf">
+        <i data-lucide="download" class="icon-sm"></i> Exportar PDF
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============== MAIN ============== -->
+  <main class="main">
+
+    <!-- HEADER -->
+    <header class="topbar">
+      <div>
+        <p class="topbar__breadcrumb">People & Culture · LATAM</p>
+        <h1 class="topbar__title">Dashboard · Reclutamiento y Selección</h1>
+        <p class="topbar__period" id="periodLabel">—</p>
+      </div>
+
+      <div class="topbar__actions">
+        <div class="filter-pill">
+          <i data-lucide="calendar" class="icon-sm"></i>
+          <span id="periodPill">—</span>
+        </div>
+        <button class="btn btn--primary" id="btnScreenshot">
+          <i data-lucide="camera" class="icon-sm"></i> Screenshot
+        </button>
+      </div>
+    </header>
+
+    <!-- ============== SECCIÓN: RESUMEN EJECUTIVO ============== -->
+    <section class="section" id="resumen">
+      <div class="section__head">
+        <div>
+          <p class="section__eyebrow">01 · Narrativa</p>
+          <h2 class="section__title">Resumen ejecutivo</h2>
+        </div>
+        <p class="section__sub">Insights generados desde los datos del periodo. Lectura rápida para comité.</p>
+      </div>
+
+      <div class="insights-grid" id="insightsGrid"></div>
+    </section>
+
+    <!-- ============== SECCIÓN: KPIs PRINCIPALES ============== -->
+    <section class="section" id="kpis">
+      <div class="section__head">
+        <div>
+          <p class="section__eyebrow">02 · Headline</p>
+          <h2 class="section__title">KPIs principales</h2>
+        </div>
+        <p class="section__sub">Indicadores macro del área. El color refleja el estado vs. benchmark.</p>
+      </div>
+
+      <div class="kpi-grid" id="kpiGrid"></div>
+    </section>
+
+    <!-- ============== SECCIÓN: TIME TO HIRE ============== -->
+    <section class="section" id="time-hire">
+      <div class="section__head">
+        <div>
+          <p class="section__eyebrow">03 · Velocidad</p>
+          <h2 class="section__title">Time to Hire</h2>
+        </div>
+        <p class="section__sub">Días hábiles desde apertura hasta contratación. Equipos TH y OPS.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card__head">
+            <div>
+              <p class="card__eyebrow">Equipo TH</p>
+              <h3 class="card__title">Time to Hire · TH</h3>
+            </div>
+            <div class="card__metric">
+              <span class="metric-big" id="thAvg">—</span>
+              <span class="metric-unit">días prom.</span>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartTHTime"></canvas></div>
+          <div class="card__footer">
+            <span class="badge badge--neutral" id="thVacantes">— vacantes</span>
+            <p class="card__insight" id="thInsight">—</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <div>
+              <p class="card__eyebrow">Equipo OPS</p>
+              <h3 class="card__title">Time to Hire · OPS</h3>
+            </div>
+            <div class="card__metric">
+              <span class="metric-big" id="opsAvg">—</span>
+              <span class="metric-unit">días prom.</span>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartOPSTime"></canvas></div>
+          <div class="card__footer">
+            <span class="badge badge--neutral" id="opsVacantes">— vacantes</span>
+            <p class="card__insight" id="opsInsight">—</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SECCIÓN: TIME TO FILL ============== -->
+    <section class="section" id="time-fill">
+      <div class="section__head">
+        <div>
+          <p class="section__eyebrow">04 · Operación</p>
+          <h2 class="section__title">Time to Fill · Operaciones</h2>
+        </div>
+        <p class="section__sub">Días desde requisición hasta llenado de la posición.</p>
+      </div>
+
+      <div class="card">
+        <div class="chart-wrap chart-wrap--md"><canvas id="chartTimeToFill"></canvas></div>
+        <div class="card__footer">
+          <p class="card__insight" id="timeToFillInsight">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SECCIÓN: FILL RATE ============== -->
+    <section class="section" id="fill-rate">
+      <div class="section__head">
+        <div>
+          <p class="section__eyebrow">05 · Cierre</p>
+          <h2 class="section__title">Fill Rate</h2>
+        </div>
+        <p class="section__sub">Porcentaje de vacantes cerradas sobre el total abierto.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card__head">
+            <div>
+              <p class="card__eyebrow">Equipo TH</p>
+              <h3 class="card__title">Fill Rate · TH</h3>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartFillTH"></canvas></div>
+          <table class="data-table" id="tableFillTH"></table>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <div>
+              <p class="card__eyebrow">Equipo OPS</p>
+              <h3 class="card__title">Fill Rate · OPS</h3>
+            </div>
+          </div>
+          <div class="chart-wrap"><canvas id="chartFillOPS"></canvas></div>
+          <table class="data-table" id="tableFillOPS"></table>
+          <p class="card__insight" id="fillOPSInsight">—</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:24px">
+        <div class="card__head">
+          <div>
+            <p class="card__eyebrow">Segmentación</p>
+            <h3 class="card__title">Fill Rate por tipo de posición</h3>
+          </div>
+        </div>
+        <div id="fillTipoBars"></div>
+        <p class="card__insight" id="fillTipoInsight">—</p>
+      </div>
+    </section>
+
+    <!-- ============== SECCIÓN: ROTACIÓN ============== -->
+    <section class="section" id="rotacion">
+      <div class="section__head">
+        <div>
+          <p class="section__eyebrow">06 · Riesgo</p>
+          <h2 class="section__title">Rotación temprana · 0–90 días</h2>
+        </div>
+        <p class="section__sub">Salidas dentro de los primeros 90 días post-contratación.</p>
+      </div>
+
+      <div class="card">
+        <div class="chart-wrap chart-wrap--md"><canvas id="chartRotacion"></canvas></div>
+        <div class="card__footer">
+          <p class="card__insight" id="rotacionInsight">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== SECCIÓN: POR ANALISTA ============== -->
+    <section class="section" id="analistas">
+      <div class="section__head">
+        <div>
+          <p class="section__eyebrow">07 · Equipo</p>
+          <h2 class="section__title">Performance por analista</h2>
+        </div>
+        <p class="section__sub">Meta de equipo: 12 días.</p>
+      </div>
+
+      <div class="analyst-grid" id="analystGrid"></div>
+
+      <div class="card" style="margin-top:24px">
+        <div class="card__head">
+          <div>
+            <p class="card__eyebrow">Ranking</p>
+            <h3 class="card__title">Días promedio vs. RQs gestionadas</h3>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartAnalystRanking"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ============== SECCIÓN: SEDES ============== -->
+    <section class="section" id="sedes">
+      <div class="section__head">
+        <div>
+          <p class="section__eyebrow">08 · Geografía</p>
+          <h2 class="section__title">Ranking por sede</h2>
+        </div>
+        <p class="section__sub">Volumen y velocidad de contratación por ubicación.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card__head">
+            <div>
+              <p class="card__eyebrow">Distribución</p>
+              <h3 class="card__title">Vacantes por sede</h3>
+            </div>
+          </div>
+          <div class="chart-wrap chart-wrap--md"><canvas id="chartSedesVacantes"></canvas></div>
+        </div>
+
+        <div class="card">
+          <div class="card__head">
+            <div>
+              <p class="card__eyebrow">Velocidad</p>
+              <h3 class="card__title">Días promedio por sede</h3>
+            </div>
+          </div>
+          <div class="chart-wrap chart-wrap--md"><canvas id="chartSedesDias"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:24px">
+        <div class="card__head">
+          <div>
+            <p class="card__eyebrow">Detalle</p>
+            <h3 class="card__title">Tabla completa de sedes</h3>
+          </div>
+          <span class="badge badge--neutral" id="sedesTotal">—</span>
+        </div>
+        <table class="data-table data-table--full" id="tableSedes"></table>
+      </div>
+    </section>
+
+    <!-- ============== FOOTER ============== -->
+    <footer class="footer">
+      <p>© Viajero · People & Culture LATAM · Reporte preparado por el equipo de Reclutamiento</p>
+      <p class="footer__meta">Dashboard v1.0 · Datos cargados desde <code>js/data.js</code></p>
+    </footer>
+
+  </main>
+
+  <script>
+/* =========================================================
+   DATA · Dashboard Reclutamiento y Selección
+   ---------------------------------------------------------
+   Toda la información del dashboard vive en este archivo.
+   Para actualizar datos mensuales:
+   1. Agregar el nuevo mes en `monthlyData.timeToHireTH`, etc.
+   2. Actualizar `meta.lastUpdate` con la fecha del corte.
+   3. Recargar index.html — el dashboard se redibuja solo.
+   ========================================================= */
+
+const DASHBOARD_DATA = {
+
+  /* -------- METADATOS DEL REPORTE -------- */
+  meta: {
+    company: "Viajero",
+    area: "Reclutamiento y Selección",
+    region: "LATAM",
+    period: "Enero – Abril 2025",
+    lastUpdate: "2025-04-30",
+    preparedBy: "Equipo People & Culture"
+  },
+
+  /* -------- KPIs PRINCIPALES (tarjetas superiores) -------- */
+  headlineKpis: {
+    totalVacantes:        { value: 120, label: "Vacantes gestionadas",         delta: null,          unit: "", trend: null },
+    timeToHireAvg:        { value: 13.2, label: "Time to Hire promedio",       delta: "+2.1",        unit: "días", trend: "up", status: "warn",   benchmark: 12 },
+    fillRateGlobal:       { value: 58,   label: "Fill Rate global",             delta: "-4",          unit: "%",    trend: "down", status: "warn",   benchmark: 70 },
+    rotacionTemprana:     { value: 67,   label: "Rotación 0–90 días",           delta: "+12",         unit: "%",    trend: "up",   status: "danger", benchmark: 35 }
+  },
+
+  /* -------- TIME TO HIRE · EQUIPO TH -------- */
+  timeToHireTH: {
+    avg: 10.7,
+    totalVacantes: 52,
+    meses: [
+      { mes: "Enero",   vacantes: 10, dias: 7.90,  status: "ok",   nota: "Estable · en meta" },
+      { mes: "Febrero", vacantes: 11, dias: 9.72,  status: "ok",   nota: "Aumento por Analista de Datos (24 días)" },
+      { mes: "Marzo",   vacantes: 19, dias: 12.73, status: "warn", nota: "Vacantes estratégicas y mando medio Paracas" }
+    ],
+    insight: "Equipo TH sólido y consistente en tiempos de contratación."
+  },
+
+  /* -------- TIME TO HIRE · OPERACIONES -------- */
+  timeToHireOPS: {
+    avg: 8.03,
+    totalVacantes: 32,
+    meses: [
+      { mes: "Enero",   dias: 5.18,  status: "ok"   },
+      { mes: "Febrero", dias: 11.3,  status: "ok"   },
+      { mes: "Marzo",   dias: 12.35, status: "warn" }
+    ],
+    insight: "Equipo TH sólido y consistente."
+  },
+
+  /* -------- TIME TO FILL · OPERACIONES -------- */
+  timeToFillOPS: {
+    meses: [
+      { mes: "Enero",   dias: 17, status: "warn"   },
+      { mes: "Febrero", dias: 18, status: "warn"   },
+      { mes: "Marzo",   dias: 20, status: "danger" },
+      { mes: "Abril",   dias: 13, status: "ok"     }
+    ],
+    insight: "Marzo y abril muestran presión operativa. Abril recupera."
+  },
+
+  /* -------- FILL RATE · TH -------- */
+  fillRateTH: {
+    meses: [
+      { mes: "Enero",   rate: 62.5,  cerrados: 10, totales: 16, status: "danger" },
+      { mes: "Febrero", rate: 43.75, cerrados: 7,  totales: 16, status: "danger" },
+      { mes: "Marzo",   rate: 70.0,  cerrados: 14, totales: 20, status: "ok"     }
+    ]
+  },
+
+  /* -------- FILL RATE · OPS -------- */
+  fillRateOPS: {
+    meses: [
+      { mes: "Enero",   rate: 72.7, cerrados: 16, totales: 22, status: "warn"   },
+      { mes: "Febrero", rate: 61.5, cerrados: 16, totales: 26, status: "danger" },
+      { mes: "Marzo",   rate: 45.0, cerrados: 9,  totales: 20, status: "danger" }
+    ],
+    insight: "Caída por mandos medios."
+  },
+
+  /* -------- FILL RATE POR TIPO -------- */
+  fillRatePorTipo: [
+    { tipo: "Operativo",     rango: "60–65%", min: 60, max: 65, status: "warn" },
+    { tipo: "Mandos medios", rango: "70–80%", min: 70, max: 80, status: "ok"   },
+    { tipo: "Estratégico",   rango: "70–80%", min: 70, max: 80, status: "ok"   }
+  ],
+  fillRatePorTipoInsight: "Operativo es el segmento más débil.",
+
+  /* -------- ROTACIÓN TEMPRANA (0–90 días) -------- */
+  rotacionTemprana: {
+    meses: [
+      { mes: "Enero",   rango: "40–50%", min: 40, max: 50, status: "warn"   },
+      { mes: "Febrero", rango: "50–60%", min: 50, max: 60, status: "warn"   },
+      { mes: "Marzo",   rango: "60–70%", min: 60, max: 70, status: "danger" },
+      { mes: "Abril",   rango: "65–75%", min: 65, max: 75, status: "danger" }
+    ],
+    insight: "Impactada por liderazgo, operación y compensación."
+  },
+
+  /* -------- TIME TO HIRE · POR PERSONA -------- */
+  porPersona: {
+    metaEquipo: 12,
+    analistas: [
+      { nombre: "Andy",   dias: 12, delta: 0,  rqs: 13, status: "ok",   nota: "Lidera el equipo · en meta" },
+      { nombre: "Diego",  dias: 14, delta: 1,  rqs: 16, status: "warn", nota: "Leve ajuste sobre meta" },
+      { nombre: "Mónica", dias: 15, delta: 3,  rqs: 19, status: "danger", nota: "Mayor brecha · revisar carga" }
+    ],
+    insight: "Andy lidera · Diego con leve ajuste · Mónica con mayor brecha."
+  },
+
+  /* -------- RANKING POR SEDE -------- */
+  sedes: [
+    { sede: "OC Colombia", vacantes: 15, dias: 10.9, status: "ok"     },
+    { sede: "Cusco",       vacantes: 10, dias: 20.1, status: "danger" },
+    { sede: "Paracas",     vacantes: 10, dias: 12.8, status: "warn"   },
+    { sede: "CDMX",        vacantes:  9, dias: 20.4, status: "danger" },
+    { sede: "Lima",        vacantes:  8, dias: 20.3, status: "danger" },
+    { sede: "Bacalar",     vacantes:  8, dias:  2.5, status: "ok"     },
+    { sede: "Bogotá",      vacantes:  7, dias: 16.0, status: "warn"   },
+    { sede: "La Fortuna",  vacantes:  6, dias:  3.3, status: "ok"     },
+    { sede: "Cali",        vacantes:  5, dias:  6.0, status: "ok"     },
+    { sede: "Medellín",    vacantes:  5, dias:  9.4, status: "ok"     }
+  ],
+  sedesTotales: { vacantes: 120, dias: 13.2 },
+
+  /* -------- INSIGHTS AUTOMÁTICOS / NARRATIVA EJECUTIVA -------- */
+  executiveInsights: [
+    {
+      tipo: "fortaleza",
+      titulo: "Time to Hire bajo control en TH",
+      texto: "El equipo TH sostiene un promedio de 10.7 días hábiles, por debajo de la meta de 12. Es el músculo más estable del área."
+    },
+    {
+      tipo: "alerta",
+      titulo: "Fill Rate de OPS en deterioro",
+      texto: "OPS cayó de 72.7% (Ene) a 45% (Mar). El driver son los mandos medios. Requiere intervención táctica en sourcing y compensación."
+    },
+    {
+      tipo: "alerta",
+      titulo: "Rotación 0–90 días al alza",
+      texto: "La rotación temprana pasó de ~45% a ~70% en cuatro meses. Causas reportadas: liderazgo, operación y compensación. Riesgo de pérdida de inversión en hiring."
+    },
+    {
+      tipo: "oportunidad",
+      titulo: "Concentración geográfica del problema",
+      texto: "Cusco, CDMX y Lima superan los 20 días promedio. Tres sedes concentran el 80% del retraso. Una estrategia focal puede mover la aguja del KPI global."
+    },
+    {
+      tipo: "fortaleza",
+      titulo: "Andy lidera el ranking individual",
+      texto: "Andy cierra 13 RQs en 12 días promedio (en meta). Diego y Mónica requieren rebalanceo de carga o coaching."
+    }
+  ]
+};
+
+</script>
+  <script>
+/* =========================================================
+   APP · Dashboard Reclutamiento y Selección · Viajero
+   ---------------------------------------------------------
+   Renderiza todas las secciones desde DASHBOARD_DATA (data.js)
+   ========================================================= */
+
+/* ---------- 0) TOKENS DE DISEÑO PARA CHARTS ---------- */
+const C = {
+  ink:    "#0A0A0A",
+  ink3:   "#6B6B6B",
+  ink4:   "#9A9A9A",
+  line:   "#ECEBE6",
+  accent: "#B8946A",
+  ok:     "#15803D",
+  warn:   "#B45309",
+  danger: "#B91C1C",
+  okSoft:     "rgba(21, 128, 61, 0.10)",
+  warnSoft:   "rgba(180, 83, 9, 0.10)",
+  dangerSoft: "rgba(185, 28, 28, 0.10)"
+};
+
+const STATUS = {
+  ok:     { label: "En meta",   dot: "ok",     badge: "badge--ok",     color: C.ok     },
+  warn:   { label: "Atención",  dot: "warn",   badge: "badge--warn",   color: C.warn   },
+  danger: { label: "Crítico",   dot: "danger", badge: "badge--danger", color: C.danger },
+  neutral:{ label: "Neutro",    dot: "warn",   badge: "badge--neutral", color: C.ink3 }
+};
+
+Chart.defaults.font.family = "'Geomanist', 'Manrope', system-ui, sans-serif";
+Chart.defaults.font.size = 11.5;
+Chart.defaults.color = C.ink3;
+Chart.defaults.borderColor = C.line;
+Chart.defaults.plugins.legend.labels.boxWidth = 10;
+Chart.defaults.plugins.legend.labels.boxHeight = 10;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.padding = 14;
+Chart.defaults.plugins.tooltip.backgroundColor = "#0A0A0A";
+Chart.defaults.plugins.tooltip.titleColor = "#FFFFFF";
+Chart.defaults.plugins.tooltip.bodyColor = "#E5E5E5";
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 6;
+Chart.defaults.plugins.tooltip.titleFont = { weight: 600, size: 12 };
+Chart.defaults.plugins.tooltip.bodyFont = { size: 11.5 };
+Chart.defaults.plugins.tooltip.displayColors = true;
+Chart.defaults.plugins.tooltip.boxPadding = 4;
+
+const baseScales = {
+  x: { grid: { display: false }, ticks: { color: C.ink3 }, border: { color: C.line } },
+  y: { grid: { color: C.line, drawBorder: false }, ticks: { color: C.ink3 }, border: { display: false } }
+};
+
+
+/* ---------- 1) UTILS ---------- */
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+const fmt = (n, d = 1) => Number(n).toLocaleString("es-CO", { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtInt = (n) => Number(n).toLocaleString("es-CO");
+
+
+/* ---------- 2) META / TOPBAR ---------- */
+function renderMeta() {
+  const m = DASHBOARD_DATA.meta;
+  $("#periodLabel").textContent = `${m.area} · ${m.region} · ${m.period}`;
+  $("#periodPill").textContent  = m.period;
+  $("#lastUpdate").textContent  = new Date(m.lastUpdate).toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" });
+}
+
+
+/* ---------- 3) RESUMEN EJECUTIVO (INSIGHTS) ---------- */
+function renderInsights() {
+  const wrap = $("#insightsGrid");
+  const iconMap = { fortaleza: "trending-up", alerta: "alert-triangle", oportunidad: "target" };
+  const labelMap = { fortaleza: "Fortaleza", alerta: "Alerta", oportunidad: "Oportunidad" };
+
+  wrap.innerHTML = DASHBOARD_DATA.executiveInsights.map(i => `
+    <article class="insight-card insight-card--${i.tipo}">
+      <span class="insight-card__tag">
+        <i data-lucide="${iconMap[i.tipo]}" class="icon-sm"></i>
+        ${labelMap[i.tipo]}
+      </span>
+      <h3 class="insight-card__title">${i.titulo}</h3>
+      <p class="insight-card__text">${i.texto}</p>
+    </article>
+  `).join("");
+}
+
+
+/* ---------- 4) KPI CARDS PRINCIPALES ---------- */
+function renderKpis() {
+  const k = DASHBOARD_DATA.headlineKpis;
+  const wrap = $("#kpiGrid");
+
+  const cards = [
+    {
+      ...k.totalVacantes,
+      status: "neutral",
+      sub: "Periodo Ene–Abr 2025",
+      icon: "briefcase"
+    },
+    {
+      ...k.timeToHireAvg,
+      sub: `Benchmark ${k.timeToHireAvg.benchmark} días`,
+      icon: "clock",
+      deltaIsBadWhenUp: true
+    },
+    {
+      ...k.fillRateGlobal,
+      sub: `Benchmark ${k.fillRateGlobal.benchmark}%`,
+      icon: "check-circle",
+      deltaIsBadWhenUp: false
+    },
+    {
+      ...k.rotacionTemprana,
+      sub: `Benchmark ≤${k.rotacionTemprana.benchmark}%`,
+      icon: "user-x",
+      deltaIsBadWhenUp: true
+    }
+  ];
+
+  wrap.innerHTML = cards.map(c => {
+    const deltaClass = c.delta == null ? "" :
+      (c.deltaIsBadWhenUp
+        ? (c.trend === "up" ? "kpi-card__delta--up" : "kpi-card__delta--down")
+        : (c.trend === "up" ? "kpi-card__delta--up-good" : "kpi-card__delta--down-bad"));
+
+    const deltaArrow = c.trend === "up" ? "↑" : (c.trend === "down" ? "↓" : "");
+    const deltaHtml = c.delta == null ? "" :
+      `<span class="kpi-card__delta ${deltaClass}">${deltaArrow} ${c.delta}${c.unit}</span>`;
+
+    return `
+      <div class="kpi-card" data-status="${c.status || "neutral"}">
+        <span class="kpi-card__status-strip"></span>
+        <p class="kpi-card__label">${c.label}</p>
+        <div class="kpi-card__value-row">
+          <span class="kpi-card__value tnum">${c.value}</span>
+          <span class="kpi-card__unit">${c.unit || ""}</span>
+        </div>
+        <div class="kpi-card__meta">
+          ${deltaHtml}
+          <span>${c.sub}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+
+/* ---------- 5) TIME TO HIRE · TH + OPS ---------- */
+function renderTimeToHire() {
+  const th  = DASHBOARD_DATA.timeToHireTH;
+  const ops = DASHBOARD_DATA.timeToHireOPS;
+
+  $("#thAvg").textContent       = fmt(th.avg);
+  $("#opsAvg").textContent      = fmt(ops.avg);
+  $("#thVacantes").innerHTML    = `<i data-lucide="briefcase" class="icon-sm"></i> ${th.totalVacantes} vacantes`;
+  $("#opsVacantes").innerHTML   = `<i data-lucide="briefcase" class="icon-sm"></i> ${ops.totalVacantes} vacantes`;
+  $("#thInsight").textContent   = th.insight;
+  $("#opsInsight").textContent  = ops.insight;
+
+  // Chart TH
+  buildBarLineChart("chartTHTime", {
+    labels: th.meses.map(m => m.mes),
+    bars:   th.meses.map(m => m.vacantes),
+    line:   th.meses.map(m => m.dias),
+    status: th.meses.map(m => m.status),
+    barLabel: "Vacantes",
+    lineLabel: "Días promedio"
+  });
+
+  // Chart OPS (sin volumen, solo línea con bg)
+  buildLineWithStatus("chartOPSTime", {
+    labels: ops.meses.map(m => m.mes),
+    data:   ops.meses.map(m => m.dias),
+    status: ops.meses.map(m => m.status),
+    label:  "Días promedio"
+  });
+}
+
+
+/* ---------- 6) TIME TO FILL · OPS ---------- */
+function renderTimeToFill() {
+  const ttf = DASHBOARD_DATA.timeToFillOPS;
+  $("#timeToFillInsight").textContent = ttf.insight;
+
+  buildLineWithStatus("chartTimeToFill", {
+    labels: ttf.meses.map(m => m.mes),
+    data:   ttf.meses.map(m => m.dias),
+    status: ttf.meses.map(m => m.status),
+    label:  "Días"
+  });
+}
+
+
+/* ---------- 7) FILL RATE · TH + OPS + TIPO ---------- */
+function renderFillRate() {
+  const th = DASHBOARD_DATA.fillRateTH;
+  const ops = DASHBOARD_DATA.fillRateOPS;
+
+  // Chart TH
+  buildBarChartStatus("chartFillTH", {
+    labels: th.meses.map(m => m.mes),
+    data:   th.meses.map(m => m.rate),
+    status: th.meses.map(m => m.status),
+    label:  "Fill Rate %"
+  });
+
+  // Chart OPS
+  buildBarChartStatus("chartFillOPS", {
+    labels: ops.meses.map(m => m.mes),
+    data:   ops.meses.map(m => m.rate),
+    status: ops.meses.map(m => m.status),
+    label:  "Fill Rate %"
+  });
+
+  // Tablas
+  $("#tableFillTH").innerHTML = renderFillRateTable(th.meses);
+  $("#tableFillOPS").innerHTML = renderFillRateTable(ops.meses);
+  $("#fillOPSInsight").textContent = ops.insight;
+
+  // Por tipo
+  renderFillRateByType();
+}
+
+function renderFillRateTable(meses) {
+  return `
+    <thead><tr>
+      <th>Mes</th>
+      <th class="num">Cerradas</th>
+      <th class="num">Totales</th>
+      <th class="num">Fill Rate</th>
+      <th>Estado</th>
+    </tr></thead>
+    <tbody>
+      ${meses.map(m => `
+        <tr>
+          <td>${m.mes}</td>
+          <td class="num tnum">${m.cerrados}</td>
+          <td class="num tnum">${m.totales}</td>
+          <td class="num tnum"><strong>${fmt(m.rate)}%</strong></td>
+          <td><span class="badge ${STATUS[m.status].badge}"><span class="status-dot status-dot--${m.status}"></span>${STATUS[m.status].label}</span></td>
+        </tr>
+      `).join("")}
+    </tbody>
+  `;
+}
+
+function renderFillRateByType() {
+  const wrap = $("#fillTipoBars");
+  wrap.innerHTML = DASHBOARD_DATA.fillRatePorTipo.map(t => `
+    <div class="fill-type-row">
+      <div class="fill-type-row__label">${t.tipo}</div>
+      <div class="fill-type-row__bar">
+        <div class="fill-type-row__fill fill-type-row__fill--${t.status}" style="width:${t.max}%"></div>
+      </div>
+      <div class="fill-type-row__value">${t.rango}</div>
+    </div>
+  `).join("");
+  $("#fillTipoInsight").textContent = DASHBOARD_DATA.fillRatePorTipoInsight;
+}
+
+
+/* ---------- 8) ROTACIÓN TEMPRANA ---------- */
+function renderRotacion() {
+  const r = DASHBOARD_DATA.rotacionTemprana;
+  $("#rotacionInsight").textContent = r.insight;
+
+  const ctx = document.getElementById("chartRotacion").getContext("2d");
+  const labels = r.meses.map(m => m.mes);
+  const mins = r.meses.map(m => m.min);
+  const maxs = r.meses.map(m => m.max);
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Mínimo estimado",
+          data: mins,
+          borderColor: C.ink3,
+          backgroundColor: "rgba(185,28,28,0.04)",
+          borderWidth: 1.5,
+          tension: 0.35,
+          pointRadius: 3,
+          pointBackgroundColor: "#FFFFFF",
+          pointBorderColor: C.ink3,
+          fill: false
+        },
+        {
+          label: "Máximo estimado",
+          data: maxs,
+          borderColor: C.danger,
+          backgroundColor: "rgba(185,28,28,0.08)",
+          borderWidth: 2,
+          tension: 0.35,
+          pointRadius: 4,
+          pointBackgroundColor: "#FFFFFF",
+          pointBorderColor: C.danger,
+          pointBorderWidth: 2,
+          fill: "-1"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom" } },
+      scales: {
+        ...baseScales,
+        y: { ...baseScales.y, beginAtZero: false, ticks: { ...baseScales.y.ticks, callback: v => v + "%" }, suggestedMin: 30, suggestedMax: 80 }
+      }
+    }
+  });
+}
+
+
+/* ---------- 9) ANALISTAS ---------- */
+function renderAnalistas() {
+  const data = DASHBOARD_DATA.porPersona;
+  const wrap = $("#analystGrid");
+
+  wrap.innerHTML = data.analistas.map(a => {
+    const initial = a.nombre.charAt(0).toUpperCase();
+    const deltaStr = a.delta > 0 ? `+${a.delta} día${a.delta > 1 ? "s" : ""}` : (a.delta < 0 ? `${a.delta} días` : "= meta");
+    return `
+      <div class="analyst-card">
+        <div class="analyst-card__top">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div class="analyst-card__avatar">${initial}</div>
+            <div>
+              <p class="analyst-card__name">${a.nombre}</p>
+              <p class="analyst-card__role">Analista de Reclutamiento</p>
+            </div>
+          </div>
+          <span class="badge ${STATUS[a.status].badge}">
+            <span class="status-dot status-dot--${a.status}"></span>${STATUS[a.status].label}
+          </span>
+        </div>
+        <div class="analyst-card__metric-row">
+          <div class="analyst-metric">
+            <span class="analyst-metric__label">Time to Hire</span>
+            <span class="analyst-metric__value tnum">${a.dias} <small style="font-size:11px;color:var(--ink-3)">días</small></span>
+          </div>
+          <div class="analyst-metric">
+            <span class="analyst-metric__label">RQs gestionadas</span>
+            <span class="analyst-metric__value tnum">${a.rqs}</span>
+          </div>
+          <div class="analyst-metric">
+            <span class="analyst-metric__label">Vs. meta (${data.metaEquipo}d)</span>
+            <span class="analyst-metric__value tnum" style="color:${STATUS[a.status].color}">${deltaStr}</span>
+          </div>
+        </div>
+        <p class="analyst-card__nota">${a.nota}</p>
+      </div>
+    `;
+  }).join("");
+
+  // Chart ranking
+  const ctx = document.getElementById("chartAnalystRanking").getContext("2d");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: data.analistas.map(a => a.nombre),
+      datasets: [
+        {
+          label: "RQs gestionadas",
+          data: data.analistas.map(a => a.rqs),
+          backgroundColor: C.ink,
+          borderRadius: 5,
+          barThickness: 22,
+          yAxisID: "y"
+        },
+        {
+          label: "Days to Hire",
+          type: "line",
+          data: data.analistas.map(a => a.dias),
+          borderColor: C.accent,
+          backgroundColor: C.accent,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 5,
+          pointBackgroundColor: "#FFFFFF",
+          pointBorderColor: C.accent,
+          pointBorderWidth: 2,
+          yAxisID: "y1"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom" } },
+      scales: {
+        x: { ...baseScales.x },
+        y:  { ...baseScales.y, position: "left",  title: { display: true, text: "RQs", color: C.ink3, font: { size: 10.5 } } },
+        y1: { grid: { display: false }, position: "right", title: { display: true, text: "Días", color: C.ink3, font: { size: 10.5 } }, ticks: { color: C.ink3 }, border: { display: false } }
+      }
+    }
+  });
+}
+
+
+/* ---------- 10) SEDES ---------- */
+function renderSedes() {
+  const sedes = [...DASHBOARD_DATA.sedes].sort((a, b) => b.vacantes - a.vacantes);
+
+  $("#sedesTotal").innerHTML = `<i data-lucide="map-pin" class="icon-sm"></i> ${DASHBOARD_DATA.sedesTotales.vacantes} vacantes · ${DASHBOARD_DATA.sedesTotales.dias} días prom.`;
+
+  // Chart vacantes (horizontal)
+  const ctxV = document.getElementById("chartSedesVacantes").getContext("2d");
+  new Chart(ctxV, {
+    type: "bar",
+    data: {
+      labels: sedes.map(s => s.sede),
+      datasets: [{
+        label: "Vacantes",
+        data: sedes.map(s => s.vacantes),
+        backgroundColor: C.ink,
+        borderRadius: 4,
+        barThickness: 14
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ...baseScales.x, beginAtZero: true, grid: { color: C.line, drawBorder: false } },
+        y: { ...baseScales.y, grid: { display: false } }
+      }
+    }
+  });
+
+  // Chart días (horizontal con color por status)
+  const sortedByDias = [...DASHBOARD_DATA.sedes].sort((a, b) => b.dias - a.dias);
+  const ctxD = document.getElementById("chartSedesDias").getContext("2d");
+  new Chart(ctxD, {
+    type: "bar",
+    data: {
+      labels: sortedByDias.map(s => s.sede),
+      datasets: [{
+        label: "Días",
+        data: sortedByDias.map(s => s.dias),
+        backgroundColor: sortedByDias.map(s => statusColor(s.status)),
+        borderRadius: 4,
+        barThickness: 14
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `${ctx.raw} días` } }
+      },
+      scales: {
+        x: { ...baseScales.x, beginAtZero: true, grid: { color: C.line, drawBorder: false } },
+        y: { ...baseScales.y, grid: { display: false } }
+      }
+    }
+  });
+
+  // Tabla
+  const tbl = $("#tableSedes");
+  tbl.innerHTML = `
+    <thead><tr>
+      <th>#</th>
+      <th>Sede</th>
+      <th class="num">Vacantes</th>
+      <th class="num">Días promedio</th>
+      <th class="num">% del total</th>
+      <th>Estado</th>
+    </tr></thead>
+    <tbody>
+      ${sedes.map((s, i) => `
+        <tr>
+          <td style="color:var(--ink-4);font-weight:600">${(i + 1).toString().padStart(2, "0")}</td>
+          <td><strong>${s.sede}</strong></td>
+          <td class="num tnum">${s.vacantes}</td>
+          <td class="num tnum">${fmt(s.dias)}</td>
+          <td class="num tnum">${fmt(s.vacantes / DASHBOARD_DATA.sedesTotales.vacantes * 100, 1)}%</td>
+          <td><span class="badge ${STATUS[s.status].badge}"><span class="status-dot status-dot--${s.status}"></span>${STATUS[s.status].label}</span></td>
+        </tr>
+      `).join("")}
+      <tr style="background:var(--bg-soft)">
+        <td></td>
+        <td><strong>Total general</strong></td>
+        <td class="num tnum"><strong>${DASHBOARD_DATA.sedesTotales.vacantes}</strong></td>
+        <td class="num tnum"><strong>${DASHBOARD_DATA.sedesTotales.dias}</strong></td>
+        <td class="num tnum">100%</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  `;
+}
+
+
+/* ---------- 11) CHART BUILDERS REUTILIZABLES ---------- */
+function statusColor(s) {
+  return s === "ok" ? C.ok : s === "warn" ? C.warn : s === "danger" ? C.danger : C.ink3;
+}
+
+function buildBarLineChart(canvasId, { labels, bars, line, status, barLabel, lineLabel }) {
+  const ctx = document.getElementById(canvasId).getContext("2d");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: barLabel,
+          data: bars,
+          backgroundColor: "rgba(10,10,10,0.85)",
+          borderRadius: 5,
+          barThickness: 26,
+          yAxisID: "y"
+        },
+        {
+          label: lineLabel,
+          type: "line",
+          data: line,
+          borderColor: C.accent,
+          backgroundColor: C.accent,
+          tension: 0.35,
+          borderWidth: 2.2,
+          pointRadius: 5,
+          pointBackgroundColor: line.map((_, i) => statusColor(status[i])),
+          pointBorderColor: "#FFFFFF",
+          pointBorderWidth: 2,
+          yAxisID: "y1"
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom" } },
+      scales: {
+        x: { ...baseScales.x },
+        y:  { ...baseScales.y, beginAtZero: true, title: { display: true, text: "Vacantes", color: C.ink4, font: { size: 10.5 } } },
+        y1: { grid: { display: false }, position: "right", beginAtZero: true, ticks: { color: C.ink3 }, border: { display: false }, title: { display: true, text: "Días", color: C.ink4, font: { size: 10.5 } } }
+      }
+    }
+  });
+}
+
+function buildLineWithStatus(canvasId, { labels, data, status, label }) {
+  const ctx = document.getElementById(canvasId).getContext("2d");
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data,
+        borderColor: C.ink,
+        backgroundColor: "rgba(184,148,106,0.10)",
+        tension: 0.35,
+        borderWidth: 2.2,
+        pointRadius: 6,
+        pointBackgroundColor: data.map((_, i) => statusColor(status[i])),
+        pointBorderColor: "#FFFFFF",
+        pointBorderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        ...baseScales,
+        y: { ...baseScales.y, beginAtZero: true, ticks: { ...baseScales.y.ticks, callback: v => v + "d" } }
+      }
+    }
+  });
+}
+
+function buildBarChartStatus(canvasId, { labels, data, status, label }) {
+  const ctx = document.getElementById(canvasId).getContext("2d");
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data,
+        backgroundColor: data.map((_, i) => statusColor(status[i])),
+        borderRadius: 5,
+        barThickness: 36
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `${fmt(ctx.raw)}%` } }
+      },
+      scales: {
+        ...baseScales,
+        y: { ...baseScales.y, beginAtZero: true, max: 100, ticks: { ...baseScales.y.ticks, callback: v => v + "%" } }
+      }
+    }
+  });
+}
+
+
+/* ---------- 12) SCROLL SPY (nav activo según sección visible) ---------- */
+function setupScrollSpy() {
+  const links = $$(".nav-link");
+  const sections = links
+    .map(l => document.querySelector(l.getAttribute("href")))
+    .filter(Boolean);
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        const id = en.target.id;
+        links.forEach(l => l.classList.toggle("is-active", l.getAttribute("href") === `#${id}`));
+      }
+    });
+  }, { rootMargin: "-30% 0px -60% 0px", threshold: 0 });
+
+  sections.forEach(s => obs.observe(s));
+}
+
+
+/* ---------- 13) EXPORT PDF / SCREENSHOT ---------- */
+async function exportToPdf() {
+  const btn = $("#btnExportPdf");
+  const original = btn.innerHTML;
+  btn.innerHTML = `<i data-lucide="loader" class="icon-sm"></i> Generando...`;
+  lucide.createIcons();
+
+  const main = $(".main");
+  const canvas = await html2canvas(main, {
+    scale: 2, backgroundColor: "#FFFFFF", useCORS: true, windowWidth: main.scrollWidth, windowHeight: main.scrollHeight
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation: "portrait", unit: "px", format: [canvas.width, canvas.height] });
+  pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
+  pdf.save(`Dashboard-Reclutamiento-${DASHBOARD_DATA.meta.lastUpdate}.pdf`);
+
+  btn.innerHTML = original;
+  lucide.createIcons();
+}
+
+async function exportScreenshot() {
+  const btn = $("#btnScreenshot");
+  const original = btn.innerHTML;
+  btn.innerHTML = `<i data-lucide="loader" class="icon-sm"></i> Capturando...`;
+  lucide.createIcons();
+
+  const main = $(".main");
+  const canvas = await html2canvas(main, { scale: 2, backgroundColor: "#FFFFFF", useCORS: true });
+  const link = document.createElement("a");
+  link.download = `Dashboard-Reclutamiento-${DASHBOARD_DATA.meta.lastUpdate}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+
+  btn.innerHTML = original;
+  lucide.createIcons();
+}
+
+
+/* ---------- 14) INIT ---------- */
+document.addEventListener("DOMContentLoaded", () => {
+  renderMeta();
+  renderInsights();
+  renderKpis();
+  renderTimeToHire();
+  renderTimeToFill();
+  renderFillRate();
+  renderRotacion();
+  renderAnalistas();
+  renderSedes();
+  setupScrollSpy();
+
+  $("#btnExportPdf").addEventListener("click", exportToPdf);
+  $("#btnScreenshot").addEventListener("click", exportScreenshot);
+
+  // Render iconos Lucide al final (después de que el HTML dinámico está en su lugar)
+  lucide.createIcons();
+});
+
+</script>
+</body>
+</html>
